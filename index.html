@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>upload登入練習</title>
+    <!-- axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.js"></script>
+</head>
+<body>
+
+    <div>
+        <input type="email" id="email" value="larrylinr5@gmail.com">
+        <input type="password" id="password" value="larrylinr5">
+        <button type="button" id="login">登入</button>
+    </div>
+        
+    <div>
+        <button type="button" id="check">確認是否登入</button>
+        <button type="button" id="getProducts">取得後台產品列表</button>
+    </div>
+    
+    <br><hr><br>
+
+    <div>
+        <input type="file" class="form-control" id="file" placeholder="請輸入圖片連結">
+        <button type="button" id="upload">上傳</button>
+    </div>
+
+
+    <script>
+        //#region 登入驗證
+        //加入站點
+        const url='https://vue3-course-api.hexschool.io/v2'
+        //加入Path
+        const path='larrylinr5'
+        //#endregion
+
+        //#region 變數區塊
+        const emailInput = document.querySelector('#email')
+        const pwInput = document.querySelector('#password')
+        const loginBtn = document.querySelector('#login')
+        const checkBtn = document.querySelector('#check')
+        const getProductsBtn = document.querySelector('#getProducts')
+        const fileInput = document.querySelector('#file')
+        const uploadBtn = document.querySelector('#upload')
+        //#endregion
+
+        //#region 添加click事件監聽
+        loginBtn.addEventListener('click',login)
+        checkBtn.addEventListener('click',checkLogin)
+        getProductsBtn.addEventListener('click',getProducts)
+        //fileInput.addEventListener('click',upload)
+        uploadBtn.addEventListener('click',upload)
+        //#endregion
+
+        //#region method
+
+        //登入
+        function login(){
+            // 使用者名稱
+            const username = emailInput.value;
+            // 使用者密碼
+            const password = pwInput.value;
+            // 使用者
+            const user = {username,password}
+
+            //發送 API 至遠端登入 (並儲存token)
+            axios.post(`${url}/admin/signin`,user)
+            // 成功的結果
+            .then(res=>{
+                //取得回傳的{token,expired}
+                const {token,expired}=res.data;
+                //存放cookie
+                document.cookie = `larryToken=${token};expires${new Date(expired)}`
+                //存放token 只需要設定一次
+                const tempToken = document.cookie.replace(/(?:(?:^|.*;\s*)larryToken\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+                //axios預設headers
+                axios.defaults.headers.common['Authorization'] = tempToken;
+            })
+            // 失敗的結果
+            .catch(error=>{
+                console.dir('error>>>',error)
+            })
+        }
+
+        //確認是否有登入
+        function checkLogin(){
+            axios.post(`${url}/api/user/check`)
+            // 成功的結果
+            .then(res=>{
+                console.log('res>',res)
+            })
+            // 失敗的結果
+            .catch(error=>{
+                console.dir('error>>>',error)
+            })
+        }
+
+        //取得後臺產品列表
+        function getProducts(){
+            axios.get(`${url}/api/${path}/admin/products`)
+            // 成功的結果
+            .then(res=>{
+                console.log('res>',res)
+            })
+            // 失敗的結果
+            .catch(error=>{
+                console.dir('error>>>',error)
+            })
+        }
+
+        //上傳圖片資料
+        function upload(){
+            console.dir(fileInput)
+
+            //取得input標籤功能抓到的物件
+            const file = fileInput.files[0]
+            console.log('file>>>',file)
+
+            //new上傳的格式
+            const formData = new FormData()
+            //檔案上傳到file-to-upload的屬性用append功能加入
+            formData.append('file-to-upload',file)
+            console.log('formData>>>',formData)
+
+            //api上傳檔案
+            axios.post(`${url}/api/${path}admin/upload`,formData)
+            // 成功的結果
+            .then(res=>{
+                console.log('res>',res)
+            })
+            // 失敗的結果
+            .catch(error=>{
+                console.dir('error>>>',error)
+            })
+        }
+        
+        //#endregion
+    </script>
+</body>
+</html>
