@@ -123,10 +123,10 @@
             const formData = new FormData()
             //檔案上傳到file-to-upload的屬性用append功能加入
             formData.append('file-to-upload',file)
-            console.log('formData>>>',formData)
+            console.dir('formData>>>',formData)
 
             //api上傳檔案
-            axios.post(`${url}/api/${path}admin/upload`,formData)
+            axios.post(`${url}/api/${path}/admin/upload`,formData)
             // 成功的結果
             .then(res=>{
                 console.log('res>',res)
